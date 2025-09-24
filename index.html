@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>DEFECTS — Централизованное управление дефектами</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <div class="logo">D</div>
+        <div>
+          <div class="brand-title">DEFECTS</div>
+          <div class="meta">Централизованное управление дефектами — демо (frontend)</div>
+        </div>
+      </div>
+      <div class="controls">
+        <nav>
+          <button id="nav-dashboard" class="active">Панель</button>
+          <button id="nav-projects">Объекты</button>
+          <button id="nav-defects">Дефекты</button>
+          <button id="nav-reports">Отчёты</button>
+        </nav>
+        <div id="user-area" class="card user-area">
+          <div id="user-role" class="meta">Гость</div>
+          <button id="btn-login" class="btn small">Войти</button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section id="view-dashboard" class="grid">
+        <div class="card">
+          <h3>Короткая статистика</h3>
+          <div class="stats-row">
+            <div class="card stat-card">
+              <div class="meta">Всего дефектов</div>
+              <div id="stat-total" class="stat-value">0</div>
+            </div>
+            <div class="card stat-card">
+              <div class="meta">В работе</div>
+              <div id="stat-inprogress" class="stat-value">0</div>
+            </div>
+            <div class="card stat-card">
+              <div class="meta">Просрочено</div>
+              <div id="stat-overdue" class="stat-value">0</div>
+            </div>
+          </div>
+
+          <div class="card full" style="margin-top:12px">
+            <h4>График — статус дефектов</h4>
+            <canvas id="chart-status" width="600" height="220"></canvas>
+          </div>
+        </div>
+
+        <aside class="card">
+          <h4>Быстрые действия</h4>
+          <div class="actions-column">
+            <button id="quick-new" class="btn">Создать дефект</button>
+            <button id="quick-export" class="btn ghost">Экспорт CSV</button>
+            <button id="quick-backup" class="btn ghost">Скачать бэкап (local)</button>
+          </div>
+
+          <div style="margin-top:14px">
+            <h5>Поиск</h5>
+            <input id="global-search" placeholder="заголовок, описание, исполнитель..." />
+          </div>
+        </aside>
+      </section>
+
+      <section id="view-projects" style="display:none">
+        <div class="card full">
+          <div class="projects-header">
+            <h3>Объекты / Проекты</h3>
+            <div><button id="btn-new-project" class="btn">Новый объект</button></div>
+          </div>
+          <div class="list" style="margin-top:10px">
+            <table id="tbl-projects"><thead><tr><th>Название</th><th>Этапы</th><th>Дата</th><th></th></tr></thead><tbody></tbody></table>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-defects" style="display:none" class="grid">
+        <div class="card">
+          <div class="defects-header">
+            <h3>Список дефектов</h3>
+            <div class="filters">
+              <select id="filter-status"><option value="all">Все статусы</option><option>Новая</option><option>В работе</option><option>На проверке</option><option>Закрыта</option><option>Отменена</option></select>
+              <select id="filter-priority"><option value="all">Все приоритеты</option><option value="Высокий">Высокий</option><option value="Средний">Средний</option><option value="Низкий">Низкий</option></select>
+              <button id="btn-clear-filters" class="btn ghost small">Сброс</button>
+            </div>
+          </div>
+
+          <div class="list" style="margin-top:10px">
+            <table id="tbl-defects"><thead><tr><th>Заголовок</th><th>Приоритет</th><th>Исполнитель</th><th>Срок</th><th>Статус</th><th></th></tr></thead><tbody></tbody></table>
+          </div>
+        </div>
+
+        <aside class="card">
+          <h4>Форма дефекта</h4>
+          <form id="form-defect">
+            <input type="hidden" id="defect-id" />
+            <div class="row"><input id="d-title" placeholder="Заголовок" required /></div>
+            <div class="row"><textarea id="d-desc" placeholder="Описание"></textarea></div>
+            <div class="row"><select id="d-priority"><option>Низкий</option><option selected>Средний</option><option>Высокий</option></select><input id="d-assignee" placeholder="Исполнитель (имя)"/></div>
+            <div class="row"><input type="date" id="d-due"/></div>
+            <div class="row"><input type="file" id="d-attach" multiple /></div>
+            <div class="form-actions"><button class="btn" type="submit">Сохранить</button><button id="btn-reset-defect" type="button" class="btn ghost">Очистить</button></div>
+          </form>
+
+          <div style="margin-top:12px">
+            <h5>История / Комментарии</h5>
+            <div id="detail-history" class="history-box"></div>
+            <div style="margin-top:8px"><input id="comment-text" placeholder="Добавить комментарий" /><button id="btn-add-comment" class="btn small">Добавить</button></div>
+          </div>
+        </aside>
+      </section>
+
+      <section id="view-reports" style="display:none">
+        <div class="card">
+          <h3>Отчёты и аналитика</h3>
+          <div class="reports-row">
+            <div class="card report-card"><h4>Дефекты по статусам</h4><canvas id="chart-status-report" width="500" height="200"></canvas></div>
+            <div class="card report-card"><h4>Дефекты по приоритету</h4><canvas id="chart-priority-report" width="500" height="200"></canvas></div>
+          </div>
+          <div style="margin-top:12px"><button id="btn-export-csv" class="btn">Экспорт в CSV</button></div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <div id="modal-auth" style="display:none" class="modal-back">
+    <div class="modal card">
+      <h3 id="auth-title">Вход / Регистрация</h3>
+      <form id="form-auth">
+        <div class="row"><input id="auth-name" placeholder="Имя" required /></div>
+        <div class="row"><input id="auth-email" placeholder="Email" required type="email"/></div>
+        <div class="row"><input id="auth-pass" placeholder="Пароль" type="password" required /></div>
+        <div class="row"><select id="auth-role"><option value="engineer">Инженер</option><option value="manager">Менеджер</option><option value="observer">Наблюдатель</option></select></div>
+        <div class="form-actions"><button class="btn" type="submit">Войти / Зарегистрироваться</button><button id="auth-cancel" type="button" class="btn ghost">Отмена</button></div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" style="display:none"></div>
+
+  <script defer src="app.js"></script>
+</body>
+</html>
